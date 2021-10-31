@@ -5,10 +5,12 @@ router = APIRouter(
     tags=["done"]
 )
 
-@router.post("")
-async def mark_task_as_done():
-    return "mark task as done"
+@router.post("", response_model=None)
+async def mark_task_as_done(task_id: int):
+    print(task_id)
+    return None
 
-@router.delete("")
-async def unmark_task_as_done():
-    return "unmark_task_as_done"
+@router.delete("", response_model=None)
+async def unmark_task_as_done(task_id: int):
+    print(task_id)
+    return None

@@ -1,13 +1,14 @@
 FROM python:3.10-buster
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /usr/src/app
 
 RUN pip install poetry
 
-COPY . .
+COPY pyproject.toml poetry.lock ./
 
-RUN poetry config virtualenvs.create false
-RUN if [ -f pyproject.toml ]; then poetry install; fi
+RUN poetry config virtualenvs.in-project true
 
-# uvicornのサーバーを立ち上げる
+RUN poetry install
+
 ENTRYPOINT ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "src.main:app", "--reload"]

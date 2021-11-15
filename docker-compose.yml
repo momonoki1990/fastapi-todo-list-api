@@ -3,6 +3,20 @@ services:
   app:
     build: .
     volumes:
-      - .:/usr/src/app
+      - ./src:/usr/src/app/src
+      - ./poetry.lock:/usr/src/app/poetry.lock
+      - ./pyproject.toml:/usr/src/app/pyproject.toml
     ports:
       - 8000:8000
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: "todo"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: "Asia/Tokyo"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - 33060:3306
+volumes:
+  mysql_data:

@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class TaskBase(BaseModel):
-    title: str
+    title: str = Field(..., example="running", max_length=1024)
 
 class TaskResponse(TaskBase):
-    id: int
-    done: bool
+    id: int = Field(..., gt=1, example=1)
+    done: bool = Field(False, description="done task or not")
 
     class Config:
         orm_mode = True
@@ -13,19 +13,5 @@ class TaskResponse(TaskBase):
 class TaskCreate(TaskBase):
     pass
 
-class TaskCreateResponse(TaskBase):
-    id: int
-    done: bool
-
-    class Config:
-        orm_mode = True
-
 class TaskUpdate(TaskBase):
-    done: bool
-
-class TaskUpdateResponse(TaskBase):
-    id: int
-    done: bool
-
-    class Config:
-        orm_mode = True
+    done: bool = Field(False, description="done task or not")

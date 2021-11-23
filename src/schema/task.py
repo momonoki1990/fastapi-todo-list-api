@@ -1,15 +1,31 @@
-from typing import Optional
 from pydantic import BaseModel
 
 class TaskBase(BaseModel):
     title: str
 
-class Task(TaskBase):
+class TaskResponse(TaskBase):
     id: int
     done: bool
+
+    class Config:
+        orm_mode = True
 
 class TaskCreate(TaskBase):
     pass
 
+class TaskCreateResponse(TaskBase):
+    id: int
+    done: bool
+
+    class Config:
+        orm_mode = True
+
 class TaskUpdate(TaskBase):
-    pass
+    done: bool
+
+class TaskUpdateResponse(TaskBase):
+    id: int
+    done: bool
+
+    class Config:
+        orm_mode = True

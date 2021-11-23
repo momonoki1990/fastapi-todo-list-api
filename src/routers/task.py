@@ -1,27 +1,37 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.schema import task as task_schema
+from src.db import get_db
+from src.cruds import task as task_crud
 
 router = APIRouter(
     prefix="/tasks",
     tags=["task"]
 )
 
-@router.get("", response_model=List[task_schema.Task])
-async def get_all_tasks():
-    return [task_schema.Task(id=1, title="sample task1", done=False)]
+@router.get("", response_model=List[task_schema.TaskResponse])
+async def list_tasks(db: AsyncSession = Depends(get_db)):
+    return await task_crud.get_tasks(db)
 
-@router.post("", response_model=task_schema.Task)
-async def create_task(task_body: task_schema.TaskCreate):
-    title = task_body.title
-    return task_schema.Task(id=1, title=title, done=False)
+@router.post("", response_model=task_schema.TaskCreateResponse)
+async def create_task(task_body: task_schema.TaskCreate, db: AsyncSession = Depends(get_db)):
+    return await task_crud.create_task(db, task_body)
 
-@router.put("/{task_id}", response_model=task_schema.Task)
-async def update_task(task_id: int, task_body: task_schema.TaskUpdate):
-    title = task_body.title
-    return task_schema.Task(id=task_id, title=title, done=False)
+@router.put("/{task_id}", response_model=task_schema.TaskUpdateResponse)
+async def update_task(task_id: int, task_body: task_schema.TaskUpdate, db: AsyncSession = Depends(get_db)):
+    task = await task_crud.get_task(db, task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.title = task_body.title
+    task.done = task_body.done
+    return await task_crud.update_task(db, task)
 
 @router.delete("/{task_id}", response_model=None)
-async def delete_task(task_id: int):
-    print(task_id)
-    return None
+async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
+    task = await task_crud.get_task(db, task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    await task_crud.delete_task(db, task)

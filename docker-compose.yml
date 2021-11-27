@@ -4,8 +4,9 @@ services:
     build: .
     volumes:
       - ./src:/usr/src/app/src
-      - ./poetry.lock:/usr/src/app/poetry.lock
       - ./pyproject.toml:/usr/src/app/pyproject.toml
+      - ./poetry.lock:/usr/src/app/poetry.lock
+      - ./.venv:/usr/src/app/.venv
     ports:
       - 8000:8000
   db:

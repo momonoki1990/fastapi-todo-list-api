@@ -14,4 +14,4 @@ $ docker compose exec app poetry run python -m src.migrate_db
 
 ## API Document
 
-access to http://localhost:8000/docs
+access to http://localhost:8000/docs and try http request via "Try it out" button on the document.

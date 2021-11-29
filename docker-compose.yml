@@ -7,6 +7,7 @@ services:
       - ./pyproject.toml:/usr/src/app/pyproject.toml
       - ./poetry.lock:/usr/src/app/poetry.lock
       - ./.venv:/usr/src/app/.venv
+      - ./tests://usr/src/app/tests
     ports:
       - 8000:8000
   db:
@@ -20,5 +21,15 @@ services:
       - ./my.conf:/etc/mysql/conf.d/my.cnf
     ports:
       - 33060:3306
+  db-test:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: "todo"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: "Asia/Tokyo"
+    volumes:
+      - ./my.conf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - 33050:3306
 volumes:
   mysql_data:

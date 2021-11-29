@@ -13,6 +13,7 @@ PyMySQL = "^1.0.2"
 asyncmy = "^0.2.3"
 
 [tool.poetry.dev-dependencies]
+tox = "^3.24.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

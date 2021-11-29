@@ -2,6 +2,7 @@ from typing import Counter
 from sqlalchemy import Boolean, Column, Integer, String
 from src.db import Base
 
+
 class Task(Base):
     __tablename__ = "tasks"
 

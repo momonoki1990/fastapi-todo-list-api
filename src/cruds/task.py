@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.engine import Result
 from src.models import task as task_model
 from src.schema import task as task_schema
@@ -29,7 +29,9 @@ async def get_tasks(db: AsyncSession) -> List[task_schema.TaskResponse]:
     return result.scalars().all()
 
 
-async def update_task(db: AsyncSession, task: task_model.Task) -> task_model.Task:
+async def update_task(
+    db: AsyncSession, task: task_model.Task
+) -> task_model.Task:
     db.add(task)
     await db.commit()
     await db.refresh(task)

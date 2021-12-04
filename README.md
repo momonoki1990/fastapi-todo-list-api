@@ -10,6 +10,9 @@ $ docker compose up
 
 # DB Migration
 $ docker compose exec app poetry run python -m src.migrate_db
+
+# test
+$ docker compose exec app poetry run tox
 ```
 
 ## API Document

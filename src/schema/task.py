@@ -6,7 +6,7 @@ class TaskBase(BaseModel):
 
 
 class TaskResponse(TaskBase):
-    id: int = Field(..., gt=1, example=1)
+    id: int = Field(..., gt=0, example=1)
     done: bool = Field(False, description="done task or not")
 
     class Config:

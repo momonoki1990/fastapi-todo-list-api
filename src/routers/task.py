@@ -23,7 +23,7 @@ async def create_task(
 @router.put("/{task_id}", response_model=task_schema.TaskResponse)
 async def update_task(
     task_body: task_schema.TaskUpdate,
-    task_id: int = Path(..., gt=1),
+    task_id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),
 ):
     task = await task_crud.get_task(db, task_id)
@@ -37,7 +37,7 @@ async def update_task(
 
 @router.delete("/{task_id}", response_model=None)
 async def delete_task(
-    task_id: int = Path(..., gt=1), db: AsyncSession = Depends(get_db)
+    task_id: int = Path(..., gt=0), db: AsyncSession = Depends(get_db)
 ):
     task = await task_crud.get_task(db, task_id)
     if task is None:

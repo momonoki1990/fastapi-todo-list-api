@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from src.db import Base, get_db
 from src.main import app
 
-ASYNC_DB_URL = "mysql+asyncmy://root@db-test:3306/todo?charset=utf8"
+ASYNC_DB_URL = "mysql+asyncmy://root@db-test:3306/todo?charset=utf8mb4"
 
 @pytest.fixture
 async def async_client() -> AsyncClient:

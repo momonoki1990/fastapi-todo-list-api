@@ -3,12 +3,7 @@ services:
   app:
     build: .
     volumes:
-      - ./src:/usr/src/app/src
-      - ./pyproject.toml:/usr/src/app/pyproject.toml
-      - ./poetry.lock:/usr/src/app/poetry.lock
-      - ./.venv:/usr/src/app/.venv
-      - ./tests:/usr/src/app/tests
-      - ./tox.ini:/usr/src/app/tox.ini
+      - ./:/usr/src/app
     ports:
       - 8000:8000
   db:

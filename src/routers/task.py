@@ -1,14 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Path
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.schema import task as task_schema
 from src.db import get_db
 from src.cruds import task as task_crud
 
 router = APIRouter(prefix="/tasks", tags=["task"])
-
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/token")
 
 @router.get("", response_model=List[task_schema.TaskResponse])
 async def list_tasks(db: AsyncSession = Depends(get_db)):
@@ -18,8 +15,7 @@ async def list_tasks(db: AsyncSession = Depends(get_db)):
 @router.post("", response_model=task_schema.TaskResponse)
 async def create_task(
     task_body: task_schema.TaskCreate,
-    db: AsyncSession = Depends(get_db),
-    token: str = Depends(oauth2_schema)
+    db: AsyncSession = Depends(get_db)
 ):
     return await task_crud.create_task(db, task_body)
 

@@ -11,6 +11,7 @@ uvicorn = {extras = ["standard"], version = "^0.15.0"}
 SQLAlchemy = "^1.4.26"
 PyMySQL = "^1.0.2"
 asyncmy = "^0.2.3"
+python-multipart = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 tox = "^3.24.4"

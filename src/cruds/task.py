@@ -23,7 +23,7 @@ async def get_task(db: AsyncSession, id: int) -> Optional[task_model.Task]:
     return result.scalar()
 
 
-async def get_tasks(db: AsyncSession) -> List[task_schema.TaskResponse]:
+async def get_tasks(db: AsyncSession) -> List[task_schema.Task]:
     stmt = select(task_model.Task)
     result: Result = await db.execute(stmt)
     return result.scalars().all()

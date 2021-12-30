@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic.main import BaseModel
 from src.schema import user as user_schema, task as task_schema
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -21,13 +20,6 @@ fake_users_db = {
         "activated": True,
     }
 }
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
 class UserInDB(user_schema.User):
     password: str
 
@@ -56,7 +48,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)):
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = user_schema.TokenData(username=username)
     except JWTError:
         raise credentials_exception
     user = get_user(fake_users_db, username=token_data.username)
@@ -93,7 +85,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=user_schema.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
@@ -112,7 +104,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def read_users_me(current_user: user_schema.User = Depends(get_current_active_user)):
     return current_user
 
-@router.get("/users/me/tasks", response_model=List[task_schema.TaskResponse])
+@router.get("/users/me/tasks", response_model=List[task_schema.Task])
 async def read_own_items(current_user: user_schema.User = Depends(get_current_active_user)):
-    sample_task = task_schema.TaskResponse(id=1, title="my task", done=False)
+    sample_task = task_schema.Task(id=1, title="my task", done=False)
     return [sample_task]

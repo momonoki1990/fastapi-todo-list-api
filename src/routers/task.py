@@ -7,12 +7,12 @@ from src.cruds import task as task_crud
 
 router = APIRouter(prefix="/tasks", tags=["task"])
 
-@router.get("", response_model=List[task_schema.TaskResponse])
+@router.get("", response_model=List[task_schema.Task])
 async def list_tasks(db: AsyncSession = Depends(get_db)):
     return await task_crud.get_tasks(db)
 
 
-@router.post("", response_model=task_schema.TaskResponse)
+@router.post("", response_model=task_schema.Task)
 async def create_task(
     task_body: task_schema.TaskCreate,
     db: AsyncSession = Depends(get_db)
@@ -20,7 +20,7 @@ async def create_task(
     return await task_crud.create_task(db, task_body)
 
 
-@router.put("/{task_id}", response_model=task_schema.TaskResponse)
+@router.put("/{task_id}", response_model=task_schema.Task)
 async def update_task(
     task_body: task_schema.TaskUpdate,
     task_id: int = Path(..., gt=0),

@@ -91,6 +91,7 @@ async def register_user(
     form_data: user_schema.UserCreate = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
+    form_data.password = get_hashed_password(form_data.password)
     user = await user_crud.create_user(db, form_data)
     access_token = create_access_token(user.username)
     return {"access_token": access_token, "token_type": "bearer"}

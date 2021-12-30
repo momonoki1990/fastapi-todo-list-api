@@ -2,9 +2,12 @@ from datetime import datetime, timedelta
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from src.schema import user as user_schema, task as task_schema
+from src.cruds import user as user_crud
+from src.db import get_db
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -82,6 +85,15 @@ def create_access_token(username: str):
         "exp": expire
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+@router.post("/user", response_model=user_schema.Token)
+async def register_user(
+    form_data: user_schema.UserCreate = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    user = await user_crud.create_user(db, form_data)
+    access_token = create_access_token(user.username)
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/token", response_model=user_schema.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):

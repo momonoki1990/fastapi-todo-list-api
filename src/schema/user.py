@@ -2,8 +2,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 class User(BaseModel):
-    __tablename__ = "users"
-
     id: int = Field(...)
     username: str = Field(...)
     email: str = Field(...)

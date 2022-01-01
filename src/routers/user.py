@@ -37,8 +37,3 @@ async def login_for_access_token(
 @router.get("/users/me", response_model=user_schema.User)
 async def read_users_me(current_user: user_schema.User = Depends(authenticate.get_current_active_user)):
     return current_user
-
-@router.get("/users/me/tasks", response_model=List[task_schema.Task])
-async def read_own_items(current_user: user_schema.User = Depends(authenticate.get_current_active_user)):
-    sample_task = task_schema.Task(id=1, title="my task", done=False)
-    return [sample_task]

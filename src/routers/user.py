@@ -3,8 +3,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.engine import Result
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from src.models import model
 from src.schema import user as user_schema, task as task_schema
 from src.cruds import user as user_crud
 from src.db import get_db
@@ -35,10 +38,10 @@ router = APIRouter(prefix="", tags=["user"])
 def fake_hashed_password(password: str):
     return "fakehashed" + password
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+async def get_user(db: AsyncSession, email: str):
+    stmt = select(model.User).where(model.User.email == email)
+    result: Result = await db.execute(stmt)
+    return result.scalar()
 
 async def get_current_user(token: str = Depends(oauth2_schema)):
     credentials_exception = HTTPException(
@@ -54,7 +57,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)):
         token_data = user_schema.TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = await get_user(fake_users_db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -70,8 +73,8 @@ def get_hashed_password(password) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+async def authenticate_user(db: AsyncSession, email: str, password: str):
+    user = await get_user(db, email)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -97,12 +100,15 @@ async def register_user(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/token", response_model=user_schema.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+async def login_for_access_token(
+    form_data: user_schema.UserLogin = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    user = await authenticate_user(db, form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect uername or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
     access_token = create_access_token(user.username)

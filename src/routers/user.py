@@ -35,15 +35,15 @@ oauth2_schema: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="/token")
 
 router = APIRouter(prefix="", tags=["user"])
 
-def fake_hashed_password(password: str):
-    return "fakehashed" + password
-
-async def get_user(db: AsyncSession, email: str):
-    stmt = select(model.User).where(model.User.email == email)
+async def get_user(db: AsyncSession, username: str):
+    stmt = select(model.User).where(model.User.username == username)
     result: Result = await db.execute(stmt)
     return result.scalar()
 
-async def get_current_user(token: str = Depends(oauth2_schema)):
+async def get_current_user(
+    token: str = Depends(oauth2_schema),
+    db: AsyncSession = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="could not validate credentials",
@@ -57,7 +57,7 @@ async def get_current_user(token: str = Depends(oauth2_schema)):
         token_data = user_schema.TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await get_user(fake_users_db, username=token_data.username)
+    user = await get_user(db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -73,8 +73,8 @@ def get_hashed_password(password) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-async def authenticate_user(db: AsyncSession, email: str, password: str):
-    user = await get_user(db, email)
+async def authenticate_user(db: AsyncSession, username: str, password: str):
+    user = await get_user(db, username)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -101,10 +101,10 @@ async def register_user(
 
 @router.post("/token", response_model=user_schema.Token)
 async def login_for_access_token(
-    form_data: user_schema.UserLogin = Depends(),
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
-    user = await authenticate_user(db, form_data.email, form_data.password)
+    user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

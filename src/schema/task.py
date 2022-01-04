@@ -5,7 +5,7 @@ class TaskBase(BaseModel):
     title: str = Field(..., example="running", max_length=1024)
 
 
-class TaskResponse(TaskBase):
+class Task(TaskBase):
     id: int = Field(..., gt=0, example=1)
     done: bool = Field(False, description="done task or not")
 
